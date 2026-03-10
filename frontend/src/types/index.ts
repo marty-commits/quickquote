@@ -8,7 +8,7 @@ export enum RoofMaterial {
   ASPHALT = "Asphalt Shingles",
   METAL = "Metal",
   TILE = "Tile",
-  OTHER = "Other",
+  CEDAR = "Cedar",
 }
 
 export enum RoofAge {

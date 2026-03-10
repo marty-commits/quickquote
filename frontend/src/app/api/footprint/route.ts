@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import booleanPointInPolygon from "@turf/boolean-point-in-polygon";
+import turfArea from "@turf/area";
+import { point, polygon as turfPolygon } from "@turf/helpers";
 
 const SQM_TO_SQFT = 10.7639;
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
@@ -52,20 +55,6 @@ function wayToPolygonCoords(
   return coords.length >= 4 ? coords : null;
 }
 
-function polygonArea(coords: number[][]): number {
-  // Shoelace formula for area in square degrees, converted to m²
-  // Use equirectangular approximation
-  let area = 0;
-  const n = coords.length;
-  for (let i = 0; i < n - 1; i++) {
-    const x1 = coords[i][0] * (Math.PI / 180) * 6371000;
-    const y1 = coords[i][1] * (Math.PI / 180) * 6371000;
-    const x2 = coords[i + 1][0] * (Math.PI / 180) * 6371000;
-    const y2 = coords[i + 1][1] * (Math.PI / 180) * 6371000;
-    area += x1 * y2 - x2 * y1;
-  }
-  return Math.abs(area / 2);
-}
 
 function distanceSq(
   lat1: number,
@@ -152,17 +141,34 @@ export async function GET(request: NextRequest) {
 
   const nodeMap = new Map<number, OsmNode>(nodes.map((n) => [n.id, n]));
 
-  // Pick the way whose centroid is closest to the query point
+  // First try to find a building that contains the query point (most accurate)
+  const queryPoint = point([lng, lat]);
   let bestWay: OsmWay | null = null;
-  let bestDist = Infinity;
 
   for (const way of ways) {
-    const centroid = wayCentroid(way, nodeMap);
-    if (!centroid) continue;
-    const d = distanceSq(lat, lng, centroid.lat, centroid.lng);
-    if (d < bestDist) {
-      bestDist = d;
-      bestWay = way;
+    const coords = wayToPolygonCoords(way, nodeMap);
+    if (!coords || coords.length < 4) continue;
+    try {
+      if (booleanPointInPolygon(queryPoint, turfPolygon([coords]))) {
+        bestWay = way;
+        break;
+      }
+    } catch {
+      // malformed polygon — skip
+    }
+  }
+
+  // Fall back to closest centroid if no containing polygon found
+  if (!bestWay) {
+    let bestDist = Infinity;
+    for (const way of ways) {
+      const centroid = wayCentroid(way, nodeMap);
+      if (!centroid) continue;
+      const d = distanceSq(lat, lng, centroid.lat, centroid.lng);
+      if (d < bestDist) {
+        bestDist = d;
+        bestWay = way;
+      }
     }
   }
 
@@ -175,7 +181,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ polygon: null, areaSqft: null });
   }
 
-  const areaSqm = polygonArea(coords);
+  const areaSqm = turfArea(turfPolygon([coords]));
   const areaSqft = Math.round(areaSqm * SQM_TO_SQFT);
 
   const polygon = {

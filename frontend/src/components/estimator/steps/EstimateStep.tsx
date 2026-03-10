@@ -2,14 +2,15 @@
 
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, DollarSign } from "lucide-react";
+import { DollarSign } from "lucide-react";
 import { useEstimatorStore } from "@/stores/estimatorStore";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { calcEstimate, formatCurrency } from "@/lib/estimate";
+import { MapView } from "@/components/estimator/MapView";
 import { Button } from "@/components/ui/button";
 
 export function EstimateStep() {
-  const { footprintSqft, pitchMultiplier, setEstimate, estimate, nextStep, prevStep } =
+  const { footprintSqft, pitchMultiplier, coordinates, polygon, setEstimate, estimate, nextStep, prevStep } =
     useEstimatorStore();
   const { settings } = useSettingsStore();
 
@@ -29,16 +30,23 @@ export function EstimateStep() {
   if (!estimate) return null;
 
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-1">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-2">
-          <TrendingUp className="h-6 w-6 text-primary" />
-        </div>
+    <div className="space-y-5">
+      <div className="text-center">
         <h2 className="text-xl font-bold text-primary">Your Roof Estimate</h2>
-        <p className="text-sm text-muted-foreground">
-          Based on ~{Math.round(estimate.roofSqft).toLocaleString()} sq ft of roof surface.
-        </p>
       </div>
+
+      {coordinates && (
+        <div className="space-y-2">
+          <MapView center={coordinates} zoom={19} polygon={polygon} />
+          <div className="text-center text-sm text-muted-foreground">
+            Based on{" "}
+            <span className="font-semibold text-foreground">
+              {Math.round(estimate.roofSqft).toLocaleString()} sq ft
+            </span>{" "}
+            of roof surface
+          </div>
+        </div>
+      )}
 
       <div className="space-y-3">
         {estimate.tiers.map((tierEst, i) => (

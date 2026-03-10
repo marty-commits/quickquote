@@ -115,10 +115,9 @@ export interface EstimatorState {
 
 export enum EstimatorStep {
   ADDRESS = 0,
-  ROOF_CONFIRM = 1,
-  PITCH = 2,
-  DETAILS = 3,
-  ESTIMATE = 4,
-  CONTACT = 5,
-  THANK_YOU = 6,
+  PITCH = 1,
+  DETAILS = 2,
+  ESTIMATE = 3,
+  CONTACT = 4,
+  THANK_YOU = 5,
 }

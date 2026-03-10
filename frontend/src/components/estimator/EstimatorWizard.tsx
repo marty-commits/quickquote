@@ -5,7 +5,6 @@ import { useEstimatorStore } from "@/stores/estimatorStore";
 import { EstimatorStep } from "@/types";
 import { StepIndicator } from "./StepIndicator";
 import { AddressStep } from "./steps/AddressStep";
-import { RoofConfirmStep } from "./steps/RoofConfirmStep";
 import { PitchStep } from "./steps/PitchStep";
 import { DetailsStep } from "./steps/DetailsStep";
 import { EstimateStep } from "./steps/EstimateStep";
@@ -14,7 +13,6 @@ import { ThankYouStep } from "./steps/ThankYouStep";
 
 const stepComponents: Record<EstimatorStep, React.ComponentType> = {
   [EstimatorStep.ADDRESS]: AddressStep,
-  [EstimatorStep.ROOF_CONFIRM]: RoofConfirmStep,
   [EstimatorStep.PITCH]: PitchStep,
   [EstimatorStep.DETAILS]: DetailsStep,
   [EstimatorStep.ESTIMATE]: EstimateStep,

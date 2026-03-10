@@ -3,7 +3,7 @@
 import { EstimatorStep } from "@/types";
 import { cn } from "@/lib/utils";
 
-const TOTAL_STEPS = 6; // ADDRESS through CONTACT (not THANK_YOU)
+const TOTAL_STEPS = 5; // ADDRESS through CONTACT (not THANK_YOU)
 
 interface Props {
   step: EstimatorStep;

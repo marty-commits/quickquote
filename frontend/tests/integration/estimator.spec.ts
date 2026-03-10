@@ -86,9 +86,8 @@ test.describe("Estimator wizard", () => {
 
   test("step indicator shows correct number of dots", async ({ page }) => {
     await page.goto("/");
-    const dots = page.locator(".rounded-full").filter({ hasText: "" });
-    // There are 6 step dots total
-    await expect(page.locator(".flex.items-center.justify-center.gap-2 .rounded-full")).toHaveCount(6);
+    // There are 5 step dots total (ADDRESS through CONTACT, not THANK_YOU)
+    await expect(page.locator(".flex.items-center.justify-center.gap-2 .rounded-full")).toHaveCount(5);
   });
 
   test("navbar shows company name and navigation links", async ({ page }) => {
